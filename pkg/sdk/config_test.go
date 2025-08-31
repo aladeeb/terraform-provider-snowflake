@@ -562,6 +562,7 @@ func Test_ToAuthenticationType(t *testing.T) {
 	valid := []test{
 		// Case insensitive.
 		{input: "snowflake", want: gosnowflake.AuthTypeSnowflake},
+		{input: "workload_identity", want: gosnowflake.AuthTypeWorkloadIdentityFederation},
 
 		// Supported Values.
 		{input: "SNOWFLAKE", want: gosnowflake.AuthTypeSnowflake},
@@ -571,6 +572,8 @@ func Test_ToAuthenticationType(t *testing.T) {
 		{input: "SNOWFLAKE_JWT", want: gosnowflake.AuthTypeJwt},
 		{input: "TOKENACCESSOR", want: gosnowflake.AuthTypeTokenAccessor},
 		{input: "USERNAMEPASSWORDMFA", want: gosnowflake.AuthTypeUsernamePasswordMFA},
+		{input: "PROGRAMMATIC_ACCESS_TOKEN", want: gosnowflake.AuthTypePat},
+		{input: "WORKLOAD_IDENTITY", want: gosnowflake.AuthTypeWorkloadIdentityFederation},
 	}
 
 	invalid := []test{
@@ -603,6 +606,7 @@ func Test_ToExtendedAuthenticatorType(t *testing.T) {
 	valid := []test{
 		// Case insensitive.
 		{input: "snowflake", want: gosnowflake.AuthTypeSnowflake},
+		{input: "workload_identity", want: gosnowflake.AuthTypeWorkloadIdentityFederation},
 
 		// Supported Values.
 		{input: "SNOWFLAKE", want: gosnowflake.AuthTypeSnowflake},
@@ -613,6 +617,7 @@ func Test_ToExtendedAuthenticatorType(t *testing.T) {
 		{input: "TOKENACCESSOR", want: gosnowflake.AuthTypeTokenAccessor},
 		{input: "USERNAMEPASSWORDMFA", want: gosnowflake.AuthTypeUsernamePasswordMFA},
 		{input: "PROGRAMMATIC_ACCESS_TOKEN", want: gosnowflake.AuthTypePat},
+		{input: "WORKLOAD_IDENTITY", want: gosnowflake.AuthTypeWorkloadIdentityFederation},
 		{input: "", want: GosnowflakeAuthTypeEmpty},
 	}
 

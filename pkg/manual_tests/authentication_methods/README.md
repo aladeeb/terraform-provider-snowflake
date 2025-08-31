@@ -51,3 +51,13 @@ This test checks `UsernamePasswordMFA` authenticator option with using `passcode
     - The first two notifications are just test setups, also present in other acceptance tests.
     - The first step asks for permission to access your device keychain.
     - For the second test step we are caching MFA token, so there is not any notification.
+
+## Workload Identity Federation authenticator test
+This test checks `WORKLOAD_IDENTITY` authenticator option. It requires proper setup of workload identity federation with your cloud provider (AWS, Azure, or GCP). It assumes that `workload_identity` profile has the necessary configuration for WIF authentication.
+1. Set up workload identity federation in your cloud provider and Snowflake account according to [Snowflake documentation](https://docs.snowflake.com/en/user-guide/oauth-aws-oidc).
+2. Configure the `workload_identity` profile in your `~/.snowflake/connections.toml` file with:
+   - `account_name` and `organization_name`
+   - `workload_identity_provider` pointing to your configured WIF provider
+   - No `user` or `password` should be set as these are obtained from the cloud identity
+3. Ensure your environment has the appropriate cloud credentials configured (AWS CLI, Azure CLI, or gcloud CLI).
+4. Run the test - it should authenticate using your cloud identity without requiring username/password.
