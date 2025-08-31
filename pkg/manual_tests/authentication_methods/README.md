@@ -53,7 +53,11 @@ This test checks `UsernamePasswordMFA` authenticator option with using `passcode
     - For the second test step we are caching MFA token, so there is not any notification.
 
 ## Workload Identity Federation authenticator test
-This test checks `WORKLOAD_IDENTITY` authenticator option. It requires proper setup of workload identity federation with your cloud provider (AWS, Azure, or GCP). It assumes that `workload_identity` profile has the necessary configuration for WIF authentication.
+This test checks `WORKLOAD_IDENTITY` authenticator option. WIF supports two main authentication flows:
+
+### 1. Automatic Cloud Provider Identity Flow
+Uses your cloud provider's identity automatically without manual tokens. Requires proper setup of workload identity federation with your cloud provider (AWS, Azure, or GCP).
+
 1. Set up workload identity federation in your cloud provider and Snowflake account according to [Snowflake documentation](https://docs.snowflake.com/en/user-guide/oauth-aws-oidc).
 2. Configure the `workload_identity` profile in your `~/.snowflake/connections.toml` file with:
    - `account_name` and `organization_name`
@@ -63,6 +67,39 @@ This test checks `WORKLOAD_IDENTITY` authenticator option. It requires proper se
      - Azure: Object ID format
      - GCP: Provider resource name format
    - `workload_identity_entra_resource` (optional, Azure-specific) - defaults to PowerBI API if not specified
-   - No `user` or `password` should be set as these are obtained from the cloud identity
+   - No `user`, `password`, or `token` should be set as these are obtained from the cloud identity
 3. Ensure your environment has the appropriate cloud credentials configured (AWS CLI, Azure CLI, or gcloud CLI).
-4. Run the test - it should authenticate using your cloud identity without requiring username/password.
+4. Run the test - it should authenticate using your cloud identity without requiring username/password or manual tokens.
+
+### 2. OIDC Token Flow for CI/CD Environments
+Uses manually provided OIDC tokens, ideal for CI/CD environments like GitHub Actions, Azure DevOps, etc.
+
+1. Set up workload identity federation in Snowflake for your OIDC provider (GitHub, Azure DevOps, etc.).
+2. Configure the authentication with:
+   - `account_name` and `organization_name` 
+   - `authenticator = "workload_identity"`
+   - `workload_identity_provider` pointing to your OIDC provider configuration in Snowflake
+   - `token` set to the OIDC token obtained from your CI/CD environment
+   - No `user` or `password` should be set
+
+**Example for GitHub Actions:**
+```toml
+[workload_identity_oidc_token]
+account_name = "my_account"
+organization_name = "my_org" 
+authenticator = "workload_identity"
+workload_identity_provider = "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+token = "${{ env.GITHUB_TOKEN }}"  # Set via environment variable in CI
+```
+
+**Example for Azure DevOps:**
+```toml
+[workload_identity_oidc_token]
+account_name = "my_account"
+organization_name = "my_org"
+authenticator = "workload_identity" 
+workload_identity_provider = "your-azure-oidc-provider-object-id"
+token = "$(System.AccessToken)"  # Set via Azure DevOps variable
+```
+
+To test the OIDC token flow, use the `workload_identity_oidc_token` profile and ensure the `SNOWFLAKE_TOKEN` environment variable is set with your OIDC token.

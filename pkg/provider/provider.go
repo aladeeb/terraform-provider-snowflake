@@ -241,7 +241,7 @@ func GetProviderSchema() map[string]*schema.Schema {
 		},
 		"token": {
 			Type:        schema.TypeString,
-			Description: envNameFieldDescription("Token to use for OAuth and other forms of token based auth. When this field is set here, or in the TOML file, the provider sets the `authenticator` to `OAUTH`. Optionally, set the `authenticator` field to the authenticator you want to use.", snowflakeenvs.Token),
+			Description: envNameFieldDescription("Token to use for OAuth and other forms of token based auth. When this field is set here, or in the TOML file, the provider sets the `authenticator` to `OAUTH`. Optionally, set the `authenticator` field to the authenticator you want to use. For Workload Identity Federation (WIF) with OIDC tokens, use this field along with `authenticator = \"workload_identity\"` and `workload_identity_provider`.", snowflakeenvs.Token),
 			Sensitive:   true,
 			Optional:    true,
 			DefaultFunc: schema.EnvDefaultFunc(snowflakeenvs.Token, nil),
@@ -405,7 +405,7 @@ func GetProviderSchema() map[string]*schema.Schema {
 		},
 		"workload_identity_provider": {
 			Type:        schema.TypeString,
-			Description: envNameFieldDescription("Specifies the workload identity provider to use for authentication with Workload Identity Federation (WIF). Required when using `authenticator = \"workload_identity\"`. Format varies by cloud provider: AWS uses ARN format, Azure uses object ID, GCP uses provider resource name.", snowflakeenvs.WorkloadIdentityProvider),
+			Description: envNameFieldDescription("Specifies the workload identity provider to use for authentication with Workload Identity Federation (WIF). Required when using `authenticator = \"workload_identity\"`. Format varies by cloud provider: AWS uses ARN format, Azure uses object ID, GCP uses provider resource name. Supports both automatic cloud identity flows and OIDC token flows for CI/CD environments.", snowflakeenvs.WorkloadIdentityProvider),
 			Optional:    true,
 			DefaultFunc: schema.EnvDefaultFunc(snowflakeenvs.WorkloadIdentityProvider, nil),
 		},

@@ -101,6 +101,30 @@ func TestAcc_Provider_WorkloadIdentityFederationAuth(t *testing.T) {
 	})
 }
 
+// This is a manual test for authenticating with Workload Identity Federation (WIF) using OIDC tokens.
+// This is useful for CI/CD environments like GitHub Actions or Azure DevOps where OIDC tokens are provided.
+func TestAcc_Provider_WorkloadIdentityFederationOIDCTokenAuth(t *testing.T) {
+	_ = testenvs.GetOrSkipTest(t, testenvs.EnableManual)
+	t.Setenv(string(testenvs.ConfigureClientOnce), "")
+
+	resource.Test(t, resource.TestCase{
+		ProtoV6ProviderFactories: manual_tests.ManualTestProtoV6ProviderFactories,
+		PreCheck: func() {
+			testenvs.AssertEnvNotSet(t, snowflakeenvs.User)
+			testenvs.AssertEnvNotSet(t, snowflakeenvs.Password)
+			testenvs.AssertEnvSet(t, snowflakeenvs.Token) // OIDC token must be provided
+		},
+		TerraformVersionChecks: []tfversion.TerraformVersionCheck{
+			tfversion.RequireAbove(tfversion.Version1_5_0),
+		},
+		Steps: []resource.TestStep{
+			{
+				Config: providerConfigWithAuthenticator(t, WorkloadIdentityOIDCToken, sdk.AuthenticationTypeWorkloadIdentityFederation),
+			},
+		},
+	})
+}
+
 func providerConfigWithAuthenticator(t *testing.T, profile string, authenticator sdk.AuthenticationType) string {
 	t.Helper()
 	return config.FromModels(t,
