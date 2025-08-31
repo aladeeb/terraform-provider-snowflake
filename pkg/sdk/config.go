@@ -419,6 +419,7 @@ const (
 	AuthenticationTypeTokenAccessor           AuthenticationType = "TOKENACCESSOR"
 	AuthenticationTypeUsernamePasswordMfa     AuthenticationType = "USERNAMEPASSWORDMFA"
 	AuthenticationTypeProgrammaticAccessToken AuthenticationType = "PROGRAMMATIC_ACCESS_TOKEN" //nolint:gosec
+	AuthenticationTypeWorkloadIdentityFederation AuthenticationType = "WORKLOAD_IDENTITY"
 
 	AuthenticationTypeEmpty AuthenticationType = ""
 )
@@ -432,6 +433,7 @@ var AllAuthenticationTypes = []AuthenticationType{
 	AuthenticationTypeTokenAccessor,
 	AuthenticationTypeUsernamePasswordMfa,
 	AuthenticationTypeProgrammaticAccessToken,
+	AuthenticationTypeWorkloadIdentityFederation,
 }
 
 func ToAuthenticatorType(s string) (gosnowflake.AuthType, error) {
@@ -452,6 +454,8 @@ func ToAuthenticatorType(s string) (gosnowflake.AuthType, error) {
 		return gosnowflake.AuthTypeUsernamePasswordMFA, nil
 	case string(AuthenticationTypeProgrammaticAccessToken):
 		return gosnowflake.AuthTypePat, nil
+	case string(AuthenticationTypeWorkloadIdentityFederation):
+		return gosnowflake.AuthTypeWorkloadIdentityFederation, nil
 	default:
 		return gosnowflake.AuthType(0), fmt.Errorf("invalid authenticator type: %s", s)
 	}

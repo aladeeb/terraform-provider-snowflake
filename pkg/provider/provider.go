@@ -241,7 +241,7 @@ func GetProviderSchema() map[string]*schema.Schema {
 		},
 		"token": {
 			Type:        schema.TypeString,
-			Description: envNameFieldDescription("Token to use for OAuth and other forms of token based auth. When this field is set here, or in the TOML file, the provider sets the `authenticator` to `OAUTH`. Optionally, set the `authenticator` field to the authenticator you want to use.", snowflakeenvs.Token),
+			Description: envNameFieldDescription("Token to use for OAuth and other forms of token based auth. When this field is set here, or in the TOML file, the provider sets the `authenticator` to `OAUTH`. Optionally, set the `authenticator` field to the authenticator you want to use. For Workload Identity Federation (WIF) with OIDC tokens, use this field along with `authenticator = \"workload_identity\"` and `workload_identity_provider`.", snowflakeenvs.Token),
 			Sensitive:   true,
 			Optional:    true,
 			DefaultFunc: schema.EnvDefaultFunc(snowflakeenvs.Token, nil),
@@ -402,6 +402,18 @@ func GetProviderSchema() map[string]*schema.Schema {
 			Description: envNameFieldDescription("False by default. When this is set to true, the provider expects the legacy TOML format. Otherwise, it expects the new format. See more in [the section below](#examples)", snowflakeenvs.UseLegacyTomlFile),
 			Optional:    true,
 			DefaultFunc: schema.EnvDefaultFunc(snowflakeenvs.UseLegacyTomlFile, false),
+		},
+		"workload_identity_provider": {
+			Type:        schema.TypeString,
+			Description: envNameFieldDescription("Specifies the workload identity provider to use for authentication with Workload Identity Federation (WIF). Required when using `authenticator = \"workload_identity\"`. Format varies by cloud provider: AWS uses ARN format, Azure uses object ID, GCP uses provider resource name. Supports both automatic cloud identity flows and OIDC token flows for CI/CD environments.", snowflakeenvs.WorkloadIdentityProvider),
+			Optional:    true,
+			DefaultFunc: schema.EnvDefaultFunc(snowflakeenvs.WorkloadIdentityProvider, nil),
+		},
+		"workload_identity_entra_resource": {
+			Type:        schema.TypeString,
+			Description: envNameFieldDescription("Specifies the Azure Entra resource to use for Workload Identity Federation authentication. Only used when `workload_identity_provider` is set for Azure environments. If not specified, defaults to https://analysis.windows.net/powerbi/api.", snowflakeenvs.WorkloadIdentityEntraResource),
+			Optional:    true,
+			DefaultFunc: schema.EnvDefaultFunc(snowflakeenvs.WorkloadIdentityEntraResource, nil),
 		},
 	}
 }
@@ -754,6 +766,8 @@ func getDriverConfigFromTerraform(s *schema.ResourceData) (*gosnowflake.Config, 
 		}(),
 		handleStringField(s, "tmp_directory_path", &config.TmpDirPath),
 		handleBooleanStringAttribute(s, "disable_console_login", &config.DisableConsoleLogin),
+		handleStringField(s, "workload_identity_provider", &config.WorkloadIdentityProvider),
+		handleStringField(s, "workload_identity_entra_resource", &config.WorkloadIdentityEntraResource),
 		// profile is handled in the calling function
 		// TODO(SNOW-1761318): handle DisableSamlURLCheck after upgrading the driver to at least 1.10.1
 	)
