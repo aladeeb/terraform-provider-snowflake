@@ -57,7 +57,12 @@ This test checks `WORKLOAD_IDENTITY` authenticator option. It requires proper se
 1. Set up workload identity federation in your cloud provider and Snowflake account according to [Snowflake documentation](https://docs.snowflake.com/en/user-guide/oauth-aws-oidc).
 2. Configure the `workload_identity` profile in your `~/.snowflake/connections.toml` file with:
    - `account_name` and `organization_name`
-   - `workload_identity_provider` pointing to your configured WIF provider
+   - `authenticator = "workload_identity"`
+   - `workload_identity_provider` pointing to your configured WIF provider (required)
+     - AWS: ARN format like `"arn:aws:iam::123456789012:oidc-provider/..."`
+     - Azure: Object ID format
+     - GCP: Provider resource name format
+   - `workload_identity_entra_resource` (optional, Azure-specific) - defaults to PowerBI API if not specified
    - No `user` or `password` should be set as these are obtained from the cloud identity
 3. Ensure your environment has the appropriate cloud credentials configured (AWS CLI, Azure CLI, or gcloud CLI).
 4. Run the test - it should authenticate using your cloud identity without requiring username/password.
